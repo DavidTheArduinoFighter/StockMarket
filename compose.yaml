@@ -1,0 +1,51 @@
+# todo: docker limits ram for rpi
+volumes:
+  data:
+services:
+  db:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: stock_data_pass
+      MYSQL_DATABASE: StockDB
+      MYSQL_USER: stock_data_user
+      MYSQL_PASSWORD: stock_data_pass
+    volumes:
+      - data:/var/lib/mysql"
+    ports:
+      - "3306:3306"
+    container_name: mariadb
+  backend:
+    image: api_server
+    container_name: backend_api
+    ports:
+      - "4000:4000"
+  python:
+    image: python
+    container_name: python
+
+# volumes:
+#   data:
+# services:
+#   db:
+#     build: ./docker/db
+#     environment:
+#       MYSQL_ROOT_PASSWORD: stock_data_pass
+#       MYSQL_DATABASE: StockDB
+#       MYSQL_USER: stock_data_user
+#       MYSQL_PASSWORD: stock_data_pass
+#     volumes:
+#       - data:/var/lib/mysql"
+#     ports:
+#       - "3306:3306"
+#     container_name: mariadb
+#
+#   node:
+#     build: ./docker/api
+#     container_name: backend_api
+#     ports:
+#       - "4000:4000"
+#
+#   python:
+#     build: ./docker/python
+#     container_name: python_data
+#
