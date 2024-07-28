@@ -4,9 +4,7 @@ import sys
 from datetime import timedelta
 import time
 import hashlib
-
-# TODO: to api
-twelveApiKey = 'c74439b506aa4e4f96d94cf9c25773d1'
+import credentials
 
 
 def connect_to_db():
@@ -30,7 +28,7 @@ def connect_to_db():
 
 
 def twelve_api(output_size, start_date, end_date, symbol='NDX', intervals='15min'):
-    url = f'https://api.twelvedata.com/complex_data?apikey={twelveApiKey}'
+    url = f'https://api.twelvedata.com/complex_data?apikey={credentials.twelve_data_key()}'
 
     data = {
         "symbols": [symbol],
@@ -65,7 +63,7 @@ class StockData:
         if years is None:
             years = 25
         self.make_new_stock_table()
-        is_error = self.add_to_db_price_interval('2024-07-04', '2024-07-06', 26)   # TODO: use last working day
+        is_error = self.add_to_db_price_interval('2024-07-04', '2024-07-06', 26)  # TODO: use last working day
         if is_error:
             return
         for i in range(years * 2):
