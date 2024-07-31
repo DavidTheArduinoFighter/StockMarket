@@ -3,6 +3,7 @@
 services:
   db:
     image: mariadb
+    build: .\docker/db
     environment:
       MYSQL_ROOT_PASSWORD: stock_data_pass
       MYSQL_DATABASE: StockDB
@@ -15,6 +16,7 @@ services:
     container_name: mariadb
   backend:
     image: api_server
+    build: .\docker/api
     container_name: backend_api
     ports:
       - "4000:4000"
@@ -22,6 +24,7 @@ services:
       - .\docker/api/json:/app/json
   python:
     image: python
+    build: .\docker/python
     container_name: python
 volumes:
   data:
