@@ -5,10 +5,10 @@ services:
     image: mariadb
     build: .\docker/db
     environment:
-      MYSQL_ROOT_PASSWORD: stock_data_pass
-      MYSQL_DATABASE: StockDB
-      MYSQL_USER: stock_data_user
-      MYSQL_PASSWORD: stock_data_pass
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - data:/var/lib/mysql"
     ports:
