@@ -1,14 +1,23 @@
 {
-  "name": "pythonproject",
+  "name": "server",
   "version": "1.0.0",
-  "description": "",
+  "description": "server package",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
-  "author": "",
+  "author": "David Ogorevc",
   "license": "ISC",
   "dependencies": {
     "express": "^4.19.2"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "StockData"
+  },
+  "keywords": [
+    "stock",
+    "stock",
+    "market"
+  ]
 }
