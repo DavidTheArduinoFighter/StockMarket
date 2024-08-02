@@ -1,7 +1,7 @@
 import requests
 import mariadb
 import sys
-from datetime import timedelta
+from datetime import timedelta, datetime, date
 import time
 import hashlib
 import credentials
@@ -58,20 +58,22 @@ class StockData:
         self.cur = connect_to_db()
         self.table_name = table_name
         self.hkey = []
+        self.last_date_reached = False
+        self.last_write_date = None
+        self.start_date = date.today()  # today won't be inserted in db (to avoid potential errors) datetime(2024, 7, 20)
 
     def fill_db(self, years=None):
         if years is None:
             years = 25
         self.make_new_stock_table()
-        is_error = self.add_to_db_price_interval('2024-07-04', '2024-07-06', 26)  # TODO: use last working day
-        if is_error:
-            return
+        self.last_write_date = self.get_last_db_date()
+
         for i in range(years * 2):
-            time.sleep(9)
             start_date, end_date = self.get_interval_data(183)
-            is_error = self.add_to_db_price_interval(start_date, end_date)
-            if is_error:
+            is_error = self.add_to_db_price_interval(end_date, start_date)
+            if is_error or self.last_date_reached:
                 return
+            time.sleep(9)   # to not exceed max api calls per minute
 
         print(f'Size of hkey list is: {sys.getsizeof(self.hkey)}')
 
@@ -105,9 +107,15 @@ class StockData:
 
             hkey = hashlib.md5(bytes(value['datetime'] + self.table_name, 'utf-8')).hexdigest()
 
-            if self.calculate_last_data_hkey(hkey):
-                date = value['datetime']
-                print(f'---return---{date}')
+            if self.last_write_date and self.last_write_date.strftime('%Y-%m-%d') == datetime.fromisoformat(value['datetime']).strftime('%Y-%m-%d'):
+                self.last_date_reached = True
+                print('All new data populated')
+                return
+
+            # Avoiding same data input
+            if self.check_last_data_hkey(hkey):
+                prevented_date = value['datetime']
+                print(f'Warning population of was prevented for date: {prevented_date}')
                 continue
 
             self.add_db_api_data(value['datetime'], value['open'], value['close'], value['high'], value['low'],
@@ -120,22 +128,22 @@ class StockData:
             (price_date + self.table_name, price_date, open_price, close_price, high_price, low_price, volume))
 
     def get_interval_data(self, num_of_days):
-        last_date = self.get_last_db_data()[0]
-        end_date = last_date.strftime('%Y-%m-%d')  # (last_date + timedelta(days=1)).strftime('%Y-%m-%d')
-        start_date = (last_date - timedelta(days=num_of_days)).strftime('%Y-%m-%d')
+        start_date = (self.start_date - timedelta(days=num_of_days))
+        end_date = self.start_date
+        self.start_date = start_date
 
-        return start_date, end_date
+        return end_date.strftime('%Y-%m-%d'), start_date.strftime('%Y-%m-%d')
 
-    def get_last_db_data(self):
+    def get_last_db_date(self):
         self.cur.execute(
-            f'SELECT price_date FROM {self.table_name} n ORDER BY price_date ASC LIMIT 1'
+            f'SELECT price_date FROM {self.table_name} n ORDER BY price_date DESC LIMIT 1'
         )
 
         price_date = self.cur.fetchone()
 
-        return price_date if price_date else None
+        return price_date[0] if price_date else None
 
-    def calculate_last_data_hkey(self, hkey):
+    def check_last_data_hkey(self, hkey):
         if hkey not in self.hkey:
             self.hkey.append(hkey)
             return False
