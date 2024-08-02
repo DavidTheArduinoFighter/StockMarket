@@ -60,7 +60,7 @@ class StockData:
         self.hkey = []
         self.last_date_reached = False
         self.last_write_date = None
-        self.start_date = date.today()  # today won't be inserted in db (to avoid potential errors) datetime(2024, 7, 20)
+        self.start_date = date.today()  # today won't be inserted in db (to avoid potential errors)
 
     def fill_db(self, years=None):
         if years is None:
