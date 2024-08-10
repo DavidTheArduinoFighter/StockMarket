@@ -168,21 +168,30 @@ class TestSymbol:
         self.cur = connect_to_db()
 
     def test_symbol(self, symbol, symbol_type):
-        allowed_symbol_type = ['stocks', 'etf']
+        allowed_symbol_type = ['stocks', 'etf', 'benchmark']
         if symbol_type not in allowed_symbol_type:
-            print('Allowed types are: etf or stock!')
+            print('Allowed types are: benchmark, etf or stocks!')
             return
         try:
-            # self.delete_stock_table(symbol)
-            # self.make_new_stock_table(symbol)
-            # result = twelve_api(20, '2024-07-04', '2024-07-06', symbol)
-            # self.write_table(symbol, result)
-            # self.delete_stock_table(symbol)
+            self.delete_stock_table(symbol)
+            self.make_new_stock_table(symbol)
+            result = twelve_api(20, '2024-07-04', '2024-07-06', symbol)
+            self.write_table(symbol, result)
+            self.delete_stock_table(symbol)
             print('Symbol is valid!')
             res = symbols.get_symbols()
-            existed_symbols = get_symbol_list(res)
-            if symbol not in existed_symbols:
+            if symbol_type != 'benchmark':
+                existed_symbols = get_symbol_list(res)
+                if symbol not in existed_symbols:
+                    symbols.post_symbols(symbol_type, symbol)
+                    print('Symbol added!')
+                else:
+                    print('Already existed!')
+            elif res['benchmark'][0] != symbol:
                 symbols.post_symbols(symbol_type, symbol)
+                print('Symbol added!')
+            else:
+                print('Already existed!')
         except Exception as e:
             print(f'Symbol is invalid! Error: {e}')
 
