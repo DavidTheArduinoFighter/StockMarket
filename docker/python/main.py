@@ -5,6 +5,7 @@ from datetime import timedelta, datetime, date
 import time
 import hashlib
 import credentials
+import symbols
 
 
 def connect_to_db():
@@ -55,6 +56,7 @@ def post(url, json_data):
 
 class StockData:
     def __init__(self, table_name):
+        self.symbol = None
         self.cur = connect_to_db()
         self.table_name = table_name
         self.hkey = []
@@ -62,7 +64,7 @@ class StockData:
         self.last_write_date = None
         self.start_date = date.today()  # today won't be inserted in db (to avoid potential errors)
 
-    def fill_db(self, years=None):
+    def fill_db(self, symbol, years=None):
         if years is None:
             years = 25
         self.make_new_stock_table()
@@ -70,7 +72,7 @@ class StockData:
 
         for i in range(years * 2):
             start_date, end_date = self.get_interval_data(183)
-            is_error = self.add_to_db_price_interval(end_date, start_date)
+            is_error = self.add_to_db_price_interval(end_date, start_date, symbol)
             if is_error or self.last_date_reached:
                 return
             time.sleep(9)   # to not exceed max api calls per minute
@@ -90,8 +92,8 @@ class StockData:
                 );"""
         )
 
-    def add_to_db_price_interval(self, start_date, end_date, num_of_data=5000):
-        result = twelve_api(num_of_data, start_date, end_date)
+    def add_to_db_price_interval(self, start_date, end_date, symbol,num_of_data=5000):
+        result = twelve_api(num_of_data, start_date, end_date, symbol)
         if result['data'][0]['status'] == 'error':
             message = result['data'][0]['message']
             print(f'Error: {message}')
@@ -198,8 +200,32 @@ class TestSymbol:
             (price_date + table_name, price_date, open_price, close_price, high_price, low_price, volume))
 
 
+class UpdateAllDb(StockData):
+    def __init__(self, table_name):
+        super().__init__(table_name)
+
+    def update_tables(self):
+        all_symbols = self.get_symbol_list(symbols.get_symbols())
+        for symbol in all_symbols:
+            super().fill_db(symbol)
+
+    @staticmethod
+    def get_symbol_list(json_res):
+        all_symbols = []
+
+        for symbol_list in json_res:
+            for symbol in json_res[symbol_list]:
+                if not symbol:
+                    continue
+                all_symbols.append(symbol)
+
+        return all_symbols
+
+
 if __name__ == '__main__':
     # testSym = TestSymbol()
     # testSym.test_symbol('NDX')
-    saveData = StockData('Nasdaq100Nasdaq')
-    saveData.fill_db()
+    # saveData = StockData('Nasdaq100Nasdaq')
+    # saveData.fill_db('NDX')
+    run = UpdateAllDb('Nasdaq100Nasdaq')
+    run.update_tables()
