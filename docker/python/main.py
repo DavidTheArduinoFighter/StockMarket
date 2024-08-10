@@ -66,16 +66,17 @@ def get_symbol_list(json_res):
     return all_symbols
 
 class StockData:
-    def __init__(self, table_name):
+    def __init__(self):
         self.symbol = None
         self.cur = connect_to_db()
-        self.table_name = table_name
+        self.table_name = None
         self.hkey = []
         self.last_date_reached = False
         self.last_write_date = None
         self.start_date = date.today()  # today won't be inserted in db (to avoid potential errors)
 
-    def fill_db(self, symbol, years=None):
+    def fill_db(self, symbol, table_name, years=None):
+        self.table_name = table_name
         if years is None:
             years = 25
         self.make_new_stock_table()
@@ -229,19 +230,21 @@ class TestSymbol:
 
 
 class UpdateAllDb(StockData):
-    def __init__(self, table_name):
-        super().__init__(table_name)
+    def __init__(self):
+        super().__init__()
 
     def update_tables(self):
-        all_symbols = get_symbol_list(symbols.get_symbols())
-        for symbol in all_symbols:
-            super().fill_db(symbol)
+        all_symbols_data = get_symbol_list(symbols.get_symbols())
+        for symbol_data in all_symbols_data:
+            if not symbol_data['symbol'] or not symbol_data['table']:
+                continue
+            super().fill_db(symbol_data['symbol'], symbol_data['table'])
 
 
 if __name__ == '__main__':
-    testSym = TestSymbol()
-    testSym.test_symbol('SPX', 'etf')
+    # testSym = TestSymbol()
+    # testSym.test_symbol('SPX', 'etf')
     # saveData = StockData('Nasdaq100Nasdaq')
     # saveData.fill_db('NDX')
-    # run = UpdateAllDb('Nasdaq100Nasdaq')
-    # run.update_tables()
+    run = UpdateAllDb()
+    run.update_tables()
