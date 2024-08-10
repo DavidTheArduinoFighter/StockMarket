@@ -168,21 +168,22 @@ class TestSymbol:
     def __init__(self):
         self.cur = connect_to_db()
 
-    def test_symbol(self, symbol, symbol_type, table_name, update=False):
+
+    def test_symbol(self, symbol, symbol_type, table_name):
         allowed_symbol_type = ['stocks', 'etf', 'benchmark']
         if symbol_type not in allowed_symbol_type:
             print('Allowed types are: benchmark, etf or stocks!')
             return
         try:
-            # self.delete_stock_table(symbol)
-            # self.make_new_stock_table(symbol)
-            # result = twelve_api(20, '2024-07-04', '2024-07-06', symbol)
-            # self.write_table(symbol, result)
-            # self.delete_stock_table(symbol)
-            # print('Symbol is valid!')
+            self.delete_stock_table(symbol)
+            self.make_new_stock_table(symbol)
+            result = twelve_api(20, '2024-07-04', '2024-07-06', symbol)
+            self.write_table(symbol, result)
+            self.delete_stock_table(symbol)
+            print('Symbol is valid!')
             res = symbols.get_symbols()
             existed_symbols = get_symbol_list(res)
-            if any(d['table'] == table_name for d in existed_symbols) and not update:
+            if any(d['table'] == table_name for d in existed_symbols) and not symbol_type == 'benchmark':
                 print('Table already in use!')
                 return
             if symbol_type != 'benchmark':
@@ -191,7 +192,7 @@ class TestSymbol:
                     print('Symbol added!')
                 else:
                     print('Already existed!')
-            elif res['benchmark'][0] != symbol:
+            elif not res['benchmark'] or res['benchmark'][0] != symbol:
                 symbols.post_symbols(symbol_type, symbol, table_name)
                 print('Symbol added!')
             else:
@@ -246,7 +247,7 @@ class UpdateAllDb(StockData):
 
 if __name__ == '__main__':
     testSym = TestSymbol()
-    testSym.test_symbol('SPX', 'etf', 'Nasdaq100')
+    testSym.test_symbol('APL', 'stocks', 'Aple')
     # saveData = StockData('Nasdaq100Nasdaq')
     # saveData.fill_db('NDX')
     # run = UpdateAllDb()

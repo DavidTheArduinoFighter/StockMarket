@@ -10,10 +10,8 @@ def get_symbols():
 def post_symbols(symbol_type, value, table):
     json_value = {
         "symbolType": symbol_type,
-        "symbol": {
-            "table": table,
-            "symbol": value
-        }
+        "table": table,
+        "symbol": value
     }
 
     url = "http://localhost:4000/symbols"
