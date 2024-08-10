@@ -1,4 +1,5 @@
 import requests
+import json
 
 
 def get_symbols():
@@ -6,7 +7,11 @@ def get_symbols():
     return requests.get(url).json()
 
 
-def post_symbols(value):
-    json_value = value  # TODO: transform to json value -- add value to json
+def post_symbols(symbol_type, value):
+    json_value = {
+        "symbolType": symbol_type,
+        "symbol": value
+    }
+
     url = "http://localhost:4000/symbols"
     return requests.post(url, json_value)

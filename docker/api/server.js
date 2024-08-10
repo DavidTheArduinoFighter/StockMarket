@@ -41,8 +41,8 @@ app.get('/symbols', function (req, res) {
 app.post('/symbols', async function (req, res) {
     const result = req.body;
     const fileData = await readSymbolsFile();
-    const updatedArray = fileData[(result.symbolTaype)]
-    if(!updatedArray.includes(result.symbol)) {
+    const updatedArray = fileData[(result.symbolType)]
+    if(!updatedArray?.includes(result.symbol)) {
         updatedArray.push(result.symbol)
         fs.writeFileSync(jsonFilePathSymbols, JSON.stringify(fileData));
         res.status(200).send('Data written in system!');

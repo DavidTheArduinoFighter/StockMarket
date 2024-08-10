@@ -167,17 +167,22 @@ class TestSymbol:
     def __init__(self):
         self.cur = connect_to_db()
 
-    def test_symbol(self, symbol):
+    def test_symbol(self, symbol, symbol_type):
+        allowed_symbol_type = ['stocks', 'etf']
+        if symbol_type not in allowed_symbol_type:
+            print('Allowed types are: etf or stock!')
+            return
         try:
-            self.delete_stock_table(symbol)
-            self.make_new_stock_table(symbol)
-            result = twelve_api(20, '2024-07-04', '2024-07-06', symbol)
-            self.write_table(symbol, result)
-            self.delete_stock_table(symbol)
+            # self.delete_stock_table(symbol)
+            # self.make_new_stock_table(symbol)
+            # result = twelve_api(20, '2024-07-04', '2024-07-06', symbol)
+            # self.write_table(symbol, result)
+            # self.delete_stock_table(symbol)
             print('Symbol is valid!')
-            existed_symbols = get_symbol_list(symbols.get_symbols())
+            res = symbols.get_symbols()
+            existed_symbols = get_symbol_list(res)
             if symbol not in existed_symbols:
-                symbols.post_symbols(symbol)
+                symbols.post_symbols(symbol_type, symbol)
         except Exception as e:
             print(f'Symbol is invalid! Error: {e}')
 
@@ -225,9 +230,9 @@ class UpdateAllDb(StockData):
 
 
 if __name__ == '__main__':
-    # testSym = TestSymbol()
-    # testSym.test_symbol('NDX')
+    testSym = TestSymbol()
+    testSym.test_symbol('SPX', 'etf')
     # saveData = StockData('Nasdaq100Nasdaq')
     # saveData.fill_db('NDX')
-    run = UpdateAllDb('Nasdaq100Nasdaq')
-    run.update_tables()
+    # run = UpdateAllDb('Nasdaq100Nasdaq')
+    # run.update_tables()
