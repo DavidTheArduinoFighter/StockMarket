@@ -54,6 +54,17 @@ def post(url, json_data):
     return api_return.json()
 
 
+def get_symbol_list(json_res):
+    all_symbols = []
+
+    for symbol_list in json_res:
+        for symbol in json_res[symbol_list]:
+            if not symbol:
+                continue
+            all_symbols.append(symbol)
+
+    return all_symbols
+
 class StockData:
     def __init__(self, table_name):
         self.symbol = None
@@ -164,6 +175,9 @@ class TestSymbol:
             self.write_table(symbol, result)
             self.delete_stock_table(symbol)
             print('Symbol is valid!')
+            existed_symbols = get_symbol_list(symbols.get_symbols())
+            if symbol not in existed_symbols:
+                symbols.post_symbols(symbol)
         except Exception as e:
             print(f'Symbol is invalid! Error: {e}')
 
@@ -205,21 +219,9 @@ class UpdateAllDb(StockData):
         super().__init__(table_name)
 
     def update_tables(self):
-        all_symbols = self.get_symbol_list(symbols.get_symbols())
+        all_symbols = get_symbol_list(symbols.get_symbols())
         for symbol in all_symbols:
             super().fill_db(symbol)
-
-    @staticmethod
-    def get_symbol_list(json_res):
-        all_symbols = []
-
-        for symbol_list in json_res:
-            for symbol in json_res[symbol_list]:
-                if not symbol:
-                    continue
-                all_symbols.append(symbol)
-
-        return all_symbols
 
 
 if __name__ == '__main__':
