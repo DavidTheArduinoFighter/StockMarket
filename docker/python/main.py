@@ -174,63 +174,36 @@ class TestSymbol:
         if symbol_type not in allowed_symbol_type:
             print('Allowed types are: benchmark, etf or stocks!')
             return
-        try:
-            self.delete_stock_table(symbol)
-            self.make_new_stock_table(symbol)
-            result = twelve_api(20, '2024-07-04', '2024-07-06', symbol)
-            self.write_table(symbol, result)
-            self.delete_stock_table(symbol)
-            print('Symbol is valid!')
-            res = symbols.get_symbols()
-            existed_symbols = get_symbol_list(res)
-            if any(d['table'] == table_name for d in existed_symbols) and not symbol_type == 'benchmark':
-                print('Table already in use!')
-                return
-            if symbol_type != 'benchmark':
-                if symbol not in existed_symbols:
-                    symbols.post_symbols(symbol_type, symbol, table_name)
-                    print('Symbol added!')
-                else:
-                    print('Already existed!')
-            elif not res['benchmark'] or res['benchmark'][0] != symbol:
+
+        res = symbols.get_symbols()
+        existed_symbols = get_symbol_list(res)
+        if any(d['table'] == table_name for d in existed_symbols) and not symbol_type == 'benchmark':
+            print('Table already in use!')
+            return
+
+        result = twelve_api(20, '2024-07-04', '2024-07-06', symbol)
+
+        if 'code' in result['data'][0]:
+            print('Error in test!')
+            err_code = result['data'][0]['code']
+            print(f'Code: {err_code}')
+            err_msg = result['data'][0]['message']
+            print(f'Message: {err_msg}')
+            return
+
+        print('Symbol is valid!')
+
+        if symbol_type != 'benchmark':
+            if symbol not in existed_symbols:
                 symbols.post_symbols(symbol_type, symbol, table_name)
                 print('Symbol added!')
             else:
                 print('Already existed!')
-        except Exception as e:
-            print(f'Symbol is invalid! Error: {e}')
-
-    def delete_stock_table(self, table_name):
-        self.cur.execute(f'DROP TABLE IF EXISTS {table_name}')
-
-    def make_new_stock_table(self, table_name):
-        self.cur.execute(
-            f"""CREATE TABLE {table_name} (
-                hkey varchar(32),
-                price_date DATETIME,
-                open_price FLOAT(24),
-                close_price FLOAT(24),
-                high_price FLOAT(24),
-                low_price FLOAT(24),
-                volume BIGINT
-                );"""
-        )
-
-    def write_table(self, table_name, result):
-        values = result['data'][0]['values']
-
-        print('Started writing data to DB')
-        start = time.time()
-        for value in values:
-            self.add_db_api_data(value['datetime'], value['open'], value['close'], value['high'], value['low'],
-                                 value['volume'], table_name)
-        print(f'Finished writing data to DB. Time elapsed: {time.time() - start}')
-
-    def add_db_api_data(self, price_date, open_price, close_price, high_price, low_price, volume,
-                        table_name='AppleNasdaq'):
-        self.cur.execute(
-            f'INSERT INTO {table_name}(hkey, price_date, open_price, close_price, high_price, low_price, volume) VALUES (MD5(?), ?, ?, ?, ?, ?, ?)',
-            (price_date + table_name, price_date, open_price, close_price, high_price, low_price, volume))
+        elif not res['benchmark'] or res['benchmark'][0] != symbol:
+            symbols.post_symbols(symbol_type, symbol, table_name)
+            print('Symbol added!')
+        else:
+            print('Already existed!')
 
 
 class UpdateAllDb(StockData):
@@ -247,7 +220,7 @@ class UpdateAllDb(StockData):
 
 if __name__ == '__main__':
     testSym = TestSymbol()
-    testSym.test_symbol('APL', 'stocks', 'Aple')
+    testSym.test_symbol('AAPL', 'stocks', 'Aple')
     # saveData = StockData('Nasdaq100Nasdaq')
     # saveData.fill_db('NDX')
     # run = UpdateAllDb()
