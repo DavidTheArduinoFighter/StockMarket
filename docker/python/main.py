@@ -8,6 +8,20 @@ import credentials
 import symbols
 
 
+class MonthDay:
+    def __init__(self, month, day):
+        self.month = month
+        self.day = day
+
+
+stock_holidays_fixed = [
+    MonthDay(1, 1),
+    MonthDay(6, 19),
+    MonthDay(12, 25)
+]
+
+
+# TODO: move functions that could be moved in new "library python file"
 def connect_to_db():
     try:
         conn = mariadb.connect(
@@ -65,6 +79,27 @@ def get_symbol_list(json_res):
 
     return all_symbols
 
+
+def get_last_working_day(checked_date):
+    # holidays
+    today = date.today()
+
+    for holiday in stock_holidays_fixed:
+        if today.month == holiday.month and today.day == holiday.day:
+            checked_date = checked_date - timedelta(days=1)
+
+    # weekend
+    # getting difference
+    diff = 1
+    if checked_date.weekday() == 0:
+        diff = 3
+    elif checked_date.weekday() == 6:
+        diff = 2
+
+    # subtracting diff
+    return checked_date - timedelta(days=diff)
+
+
 class StockData:
     def __init__(self):
         self.symbol = None
@@ -82,12 +117,16 @@ class StockData:
         self.make_new_stock_table()
         self.last_write_date = self.get_last_db_date()
 
+        if self.last_write_date.date() == get_last_working_day(self.start_date):
+            print(f'Data for table {table_name} (symbol: {symbol}) already up to date.')
+            return
+
         for i in range(years * 2):
             start_date, end_date = self.get_interval_data(183)
             is_error = self.add_to_db_price_interval(end_date, start_date, symbol)
             if is_error or self.last_date_reached:
                 return
-            time.sleep(9)   # to not exceed max api calls per minute
+            time.sleep(9)  # to not exceed max api calls per minute
 
         print(f'Size of hkey list is: {sys.getsizeof(self.hkey)}')
 
@@ -104,7 +143,7 @@ class StockData:
                 );"""
         )
 
-    def add_to_db_price_interval(self, start_date, end_date, symbol,num_of_data=5000):
+    def add_to_db_price_interval(self, start_date, end_date, symbol, num_of_data=5000):
         result = twelve_api(num_of_data, start_date, end_date, symbol)
         if result['data'][0]['status'] == 'error':
             message = result['data'][0]['message']
@@ -121,7 +160,7 @@ class StockData:
 
             hkey = hashlib.md5(bytes(value['datetime'] + self.table_name, 'utf-8')).hexdigest()
 
-            if self.last_write_date and self.last_write_date.strftime('%Y-%m-%d') == datetime.fromisoformat(value['datetime']).strftime('%Y-%m-%d'):
+            if self.last_write_date and self.last_write_date.date() == datetime.fromisoformat(value['datetime']).date():
                 self.last_date_reached = True
                 print('All new data populated')
                 return
@@ -167,7 +206,6 @@ class StockData:
 class TestSymbol:
     def __init__(self):
         self.cur = connect_to_db()
-
 
     def test_symbol(self, symbol, symbol_type, table_name):
         allowed_symbol_type = ['stocks', 'etf', 'benchmark']
@@ -219,9 +257,9 @@ class UpdateAllDb(StockData):
 
 
 if __name__ == '__main__':
-    testSym = TestSymbol()
-    testSym.test_symbol('AAPL', 'stocks', 'Aple')
-    # saveData = StockData('Nasdaq100Nasdaq')
-    # saveData.fill_db('NDX')
+    # testSym = TestSymbol()
+    # testSym.test_symbol('AAPL', 'stocks', 'Aple')
+    saveData = StockData()
+    saveData.fill_db('NDX', 'Nasdaq100Nasdaq')
     # run = UpdateAllDb()
     # run.update_tables()
