@@ -25,11 +25,11 @@ stock_holidays_fixed = [
 def connect_to_db():
     try:
         conn = mariadb.connect(
-            user='stock_data_user',
-            password='stock_data_pass',
+            user=credentials.db_username(),
+            password=credentials.db_password(),
             host='localhost',
             port=3306,
-            database='StockDB',
+            database=credentials.db_database(),
             autocommit=True
         )
     except mariadb.Error as e:
@@ -81,16 +81,15 @@ def get_symbol_list(json_res):
 
 
 def get_last_working_day(checked_date):
+    diff = 1
     # holidays
     today = date.today()
 
     for holiday in stock_holidays_fixed:
         if today.month == holiday.month and today.day == holiday.day:
-            checked_date = checked_date - timedelta(days=1)
+            checked_date = checked_date - timedelta(days=diff)
 
     # weekend
-    # getting difference
-    diff = 1
     if checked_date.weekday() == 0:
         diff = 3
     elif checked_date.weekday() == 6:
@@ -117,7 +116,7 @@ class StockData:
         self.make_new_stock_table()
         self.last_write_date = self.get_last_db_date()
 
-        if self.last_write_date.date() == get_last_working_day(self.start_date):
+        if self.last_write_date and self.last_write_date.date() == get_last_working_day(self.start_date):
             print(f'Data for table {table_name} (symbol: {symbol}) already up to date.')
             return
 
@@ -263,3 +262,5 @@ if __name__ == '__main__':
     saveData.fill_db('NDX', 'Nasdaq100Nasdaq')
     # run = UpdateAllDb()
     # run.update_tables()
+
+    # TODO: library for use of database

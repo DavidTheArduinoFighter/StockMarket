@@ -18,7 +18,7 @@ app.use(bodyParser.json()); // Parse JSON bodies
 app.use(bodyParser.urlencoded({extended: true})); // Parse URL-encoded bodies
 
 
-app.get('/twelveData', function (req, res) {
+app.get('/credentials', function (req, res) {
     fs.readFile(jsonFilePathTwelve, 'utf8', function (err, data) {
         if (err) throw err;
         const twelveCredentials = JSON.parse(data);
