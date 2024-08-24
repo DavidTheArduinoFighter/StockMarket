@@ -217,7 +217,7 @@ if __name__ == '__main__':
             case '3':
                 print("This section is more for debugging or \"hacking\" constructed program, be aware of this!")
                 print("You will update chosen symbol, but symbol will not be tested first. Do you want to continue?")
-                debug_answer = input("Type y/n")
+                debug_answer = input("Type y/n ")
                 if debug_answer == 'y':
                     while True:
                         debug_symbol_name = input("Enter symbol name: ")
