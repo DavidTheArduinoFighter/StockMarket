@@ -1,108 +1,18 @@
-import requests
-import mariadb
 import sys
 from datetime import timedelta, datetime, date
 import time
 import hashlib
-import credentials
 import symbols
+import helper
 
 
-class MonthDay:
-    def __init__(self, month, day):
-        self.month = month
-        self.day = day
 
-
-stock_holidays_fixed = [
-    MonthDay(1, 1),
-    MonthDay(6, 19),
-    MonthDay(12, 25)
-]
-
-
-# TODO: move functions that could be moved in new "library python file"
-def connect_to_db():
-    try:
-        conn = mariadb.connect(
-            user=credentials.db_username(),
-            password=credentials.db_password(),
-            host='localhost',
-            port=3306,
-            database=credentials.db_database(),
-            autocommit=True
-        )
-    except mariadb.Error as e:
-        print(f"Error connecting to MariaDB Platform: {e}")
-        sys.exit(1)
-
-    # Get Cursor
-    cur = conn.cursor()
-
-    return cur
-
-
-def twelve_api(output_size, start_date, end_date, symbol='NDX', intervals='15min'):
-    url = f'https://api.twelvedata.com/complex_data?apikey={credentials.twelve_data_key()}'
-
-    data = {
-        "symbols": [symbol],
-        "intervals": [intervals],
-        "start_date": start_date,
-        "end_date": end_date,
-        "outputsize": output_size,
-        "methods": [
-            "time_series"
-        ]
-    }
-
-    print(f'Api post')
-    result = post(url, data)
-    print(f'Api results received')
-
-    return result
-
-
-def post(url, json_data):
-    api_return = requests.post(url, json=json_data)
-    return api_return.json()
-
-
-def get_symbol_list(json_res):
-    all_symbols = []
-
-    for symbol_list in json_res:
-        for symbol in json_res[symbol_list]:
-            if not symbol:
-                continue
-            all_symbols.append(symbol)
-
-    return all_symbols
-
-
-def get_last_working_day(checked_date):
-    diff = 1
-    # holidays
-    today = date.today()
-
-    for holiday in stock_holidays_fixed:
-        if today.month == holiday.month and today.day == holiday.day:
-            checked_date = checked_date - timedelta(days=diff)
-
-    # weekend
-    if checked_date.weekday() == 0:
-        diff = 3
-    elif checked_date.weekday() == 6:
-        diff = 2
-
-    # subtracting diff
-    return checked_date - timedelta(days=diff)
 
 
 class StockData:
     def __init__(self):
         self.symbol = None
-        self.cur = connect_to_db()
+        self.cur = helper.connect_to_db()
         self.table_name = None
         self.hkey = []
         self.last_date_reached = False
@@ -116,7 +26,7 @@ class StockData:
         self.make_new_stock_table()
         self.last_write_date = self.get_last_db_date()
 
-        if self.last_write_date and self.last_write_date.date() == get_last_working_day(self.start_date):
+        if self.last_write_date and self.last_write_date.date() == helper.get_last_working_day(self.start_date):
             print(f'Data for table {table_name} (symbol: {symbol}) already up to date.')
             return
 
@@ -143,7 +53,7 @@ class StockData:
         )
 
     def add_to_db_price_interval(self, start_date, end_date, symbol, num_of_data=5000):
-        result = twelve_api(num_of_data, start_date, end_date, symbol)
+        result = helper.twelve_api(num_of_data, start_date, end_date, symbol)
         if result['data'][0]['status'] == 'error':
             message = result['data'][0]['message']
             print(f'Error: {message}')
@@ -204,7 +114,7 @@ class StockData:
 
 class TestSymbol:
     def __init__(self):
-        self.cur = connect_to_db()
+        self.cur = helper.connect_to_db()
 
     def test_symbol(self, symbol, symbol_type, table_name):
         allowed_symbol_type = ['stocks', 'etf', 'benchmark']
@@ -213,12 +123,12 @@ class TestSymbol:
             return
 
         res = symbols.get_symbols()
-        existed_symbols = get_symbol_list(res)
+        existed_symbols = helper.get_symbol_list(res)
         if any(d['table'] == table_name for d in existed_symbols) and not symbol_type == 'benchmark':
             print('Table already in use!')
             return
 
-        result = twelve_api(20, '2024-07-04', '2024-07-06', symbol)
+        result = helper.twelve_api(20, '2024-07-04', '2024-07-06', symbol)
 
         if 'code' in result['data'][0]:
             print('Error in test!')
@@ -248,7 +158,7 @@ class UpdateAllDb(StockData):
         super().__init__()
 
     def update_tables(self):
-        all_symbols_data = get_symbol_list(symbols.get_symbols())
+        all_symbols_data = helper.get_symbol_list(symbols.get_symbols())
         for symbol_data in all_symbols_data:
             if not symbol_data['symbol'] or not symbol_data['table']:
                 continue
