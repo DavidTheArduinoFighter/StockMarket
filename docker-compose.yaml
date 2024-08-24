@@ -26,5 +26,7 @@ services:
     image: python
     build: .\docker/python
     container_name: python
+    stdin_open: true # enable input - not working
+    tty: true
 volumes:
   data:
