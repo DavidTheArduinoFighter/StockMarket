@@ -152,16 +152,15 @@ class TestSymbol:
         # TODO: check if we don't have benchmark of we want to update benchmark
 
 
-class UpdateAllDb(StockData):
-    def __init__(self):
-        super().__init__()
-
-    def update_tables(self):
-        all_symbols_data = helper.get_symbol_list(symbols.get_symbols())
-        for symbol_data in all_symbols_data:
-            if not symbol_data['symbol'] or not symbol_data['table']:
-                continue
-            super().fill_db(symbol_data['symbol'], symbol_data['table'])
+def update_tables():
+    all_symbols_data = helper.get_symbol_list(symbols.get_symbols())
+    for symbol_data in all_symbols_data:
+        if not symbol_data['symbol'] or not symbol_data['table']:
+            continue
+        print(f'Updating {symbol_data["symbol"]}, table {symbol_data["table"]}.')
+        save_data = StockData()
+        save_data.fill_db(symbol_data['symbol'], symbol_data['table'])
+        print("----------------------------------------------------------")
 
 
 if __name__ == '__main__':
@@ -183,18 +182,18 @@ if __name__ == '__main__':
         match user_select:
             case '1':
                 while True:
-                    print("You selected to test symbol. If symol is valied, it will be added in json.")
+                    print("You selected to test symbol. If symbol is valid, it will be added in json.")
                     print("When you run update all database (number 2) the symbol will be used from json.")
-                    print("You need to insert symbol, in what type do you want to save it (stocks/etf/benchmark), and what will"
-                        " be table name. ")
+                    print("You need to insert symbol, in what type do you want to save it (stocks/etf/benchmark), "
+                          " and what will be table name.")
                     print("Benchmark involve only one symbol.")
                     print("Be aware, if table already exist with inserted name, than you need to change it to be uniq. Choose names"
                           " wisely!")
-                    symbol_name = input("Enter symbol name: ")
-                    symbol_type = input("Enter type of symbol(stocks/etf/benchmark): ")
-                    table_name = input("Enter table name: ")
+                    inserted_symbol_name = input("Enter symbol name: ")
+                    inserted_symbol_type = input("Enter type of symbol(stocks/etf/benchmark): ")
+                    inserted_table_name = input("Enter table name: ")
                     testSym = TestSymbol()
-                    testSym.test_symbol(symbol_name.upper(), symbol_type, table_name)
+                    testSym.test_symbol(inserted_symbol_name.upper(), inserted_symbol_type, inserted_table_name)
 
                     print("Do you want to test another symbol?")
                     test_symbol_answer = input("Enter y/n: ")
@@ -210,8 +209,7 @@ if __name__ == '__main__':
                 print("P. S.: Just make sure that you have already tested some symbols (and so filled the json,"
                       " which will provide data for update). You need at least one symbol for stocks \n or etf and benchmark"
                       " symbol.")
-                run = UpdateAllDb()
-                run.update_tables()
+                update_tables()
                 print("All up to date.")
                 prog_exit = input("Do you want to exit program? (y/n): ")
                 if prog_exit == 'y':
@@ -224,8 +222,8 @@ if __name__ == '__main__':
                     while True:
                         debug_symbol_name = input("Enter symbol name: ")
                         debug_table_name = input("Enter table name: ")
-                        saveData = StockData()
-                        saveData.fill_db(debug_symbol_name,debug_table_name)
+                        debug_save_data = StockData()
+                        debug_save_data.fill_db(debug_symbol_name, debug_table_name)
 
                         print("Do you want to insert another symbol?")
                         debug_symbol_answer = input("Enter y/n: ")
@@ -237,13 +235,5 @@ if __name__ == '__main__':
                             break
             case '4':
                 sys.exit(0)
-
-    # TODO: remove
-    # testSym = TestSymbol()
-    # testSym.test_symbol('AAPL', 'stocks', 'Aple')
-    # saveData = StockData()
-    # saveData.fill_db('NDX', 'Nasdaq100Nasdaq')
-    # run = UpdateAllDb()
-    # run.update_tables()
 
     # TODO: library for use of database
