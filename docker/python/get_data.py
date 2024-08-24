@@ -6,9 +6,6 @@ import symbols
 import helper
 
 
-
-
-
 class StockData:
     def __init__(self):
         self.symbol = None
@@ -152,6 +149,8 @@ class TestSymbol:
         else:
             print('Already existed!')
 
+        # TODO: check if we don't have benchmark of we want to update benchmark
+
 
 class UpdateAllDb(StockData):
     def __init__(self):
@@ -166,10 +165,84 @@ class UpdateAllDb(StockData):
 
 
 if __name__ == '__main__':
+    first_time = True
+    while True:
+        if first_time:
+            print("Welcome to Get data console app!")
+            print("You have following possibilities, type (just) number to select what to do:")
+            first_time = False
+        else:
+            print("You can choose again:")
+        print("\t 1 - Test symbol")
+        print("\t 2 - Update all database with new data")
+        print("\t 3 - Debug program (use just if you know what are you doing!)")
+        print("\t 4 - Exit")
+
+        user_select = input("Enter number that you chose: ")
+
+        match user_select:
+            case '1':
+                while True:
+                    print("You selected to test symbol. If symol is valied, it will be added in json.")
+                    print("When you run update all database (number 2) the symbol will be used from json.")
+                    print("You need to insert symbol, in what type do you want to save it (stocks/etf/benchmark), and what will"
+                        " be table name. ")
+                    print("Benchmark involve only one symbol.")
+                    print("Be aware, if table already exist with inserted name, than you need to change it to be uniq. Choose names"
+                          " wisely!")
+                    symbol_name = input("Enter symbol name: ")
+                    symbol_type = input("Enter type of symbol(stocks/etf/benchmark): ")
+                    table_name = input("Enter table name: ")
+                    testSym = TestSymbol()
+                    testSym.test_symbol(symbol_name.upper(), symbol_type, table_name)
+
+                    print("Do you want to test another symbol?")
+                    test_symbol_answer = input("Enter y/n: ")
+
+                    if test_symbol_answer == 'n':
+                        prog_exit = input("Do you want to exit program? (y/n): ")
+                        if prog_exit == 'y':
+                            sys.exit(0)
+                        break
+            case '2':
+                print("You selected to update database, just sit down and relax, we will notify you when process will be"
+                      " finished.")
+                print("P. S.: Just make sure that you have already tested some symbols (and so filled the json,"
+                      " which will provide data for update). You need at least one symbol for stocks \n or etf and benchmark"
+                      " symbol.")
+                run = UpdateAllDb()
+                run.update_tables()
+                print("All up to date.")
+                prog_exit = input("Do you want to exit program? (y/n): ")
+                if prog_exit == 'y':
+                    sys.exit(0)
+            case '3':
+                print("This section is more for debugging or \"hacking\" constructed program, be aware of this!")
+                print("You will update chosen symbol, but symbol will not be tested first. Do you want to continue?")
+                debug_answer = input("Type y/n")
+                if debug_answer == 'y':
+                    while True:
+                        debug_symbol_name = input("Enter symbol name: ")
+                        debug_table_name = input("Enter table name: ")
+                        saveData = StockData()
+                        saveData.fill_db(debug_symbol_name,debug_table_name)
+
+                        print("Do you want to insert another symbol?")
+                        debug_symbol_answer = input("Enter y/n: ")
+
+                        if debug_symbol_answer == 'n':
+                            prog_exit = input("Do you want to exit program? (y/n): ")
+                            if prog_exit == 'y':
+                                sys.exit(0)
+                            break
+            case '4':
+                sys.exit(0)
+
+    # TODO: remove
     # testSym = TestSymbol()
     # testSym.test_symbol('AAPL', 'stocks', 'Aple')
-    saveData = StockData()
-    saveData.fill_db('NDX', 'Nasdaq100Nasdaq')
+    # saveData = StockData()
+    # saveData.fill_db('NDX', 'Nasdaq100Nasdaq')
     # run = UpdateAllDb()
     # run.update_tables()
 
