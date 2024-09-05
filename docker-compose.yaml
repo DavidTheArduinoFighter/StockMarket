@@ -1,9 +1,10 @@
 # todo: docker limits ram for rpi
+version: "3"
 
 services:
   db:
     image: mariadb
-    build: .\docker/db
+    build: docker/db
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -16,15 +17,15 @@ services:
     container_name: mariadb
   backend:
     image: api_server
-    build: .\docker/api
+    build: docker/api
     container_name: backend_api
     ports:
       - "4000:4000"
     volumes:
-      - .\docker/api/json:/app/json
+      - ./docker/api/json:/app/json
   python:
     image: python
-    build: .\docker/python
+    build: docker/python
     container_name: python
     stdin_open: true # enable input - not working
     tty: true
