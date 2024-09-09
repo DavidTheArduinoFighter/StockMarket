@@ -4,6 +4,9 @@ import time
 import hashlib
 import symbols
 import helper
+from PyQt6.QtWidgets import QApplication, QMainWindow
+from PyQt6.QtCore import QTimer
+from StockMarketUI import Ui_MainWindow
 
 
 class StockData:
@@ -113,43 +116,97 @@ class TestSymbol:
     def __init__(self):
         self.cur = helper.connect_to_db()
 
-    def test_symbol(self, symbol, symbol_type, table_name):
+    def test_symbol(self, symbol, symbol_type, table_name, ui_output=False):
+        if not (symbol and symbol_type and table_name and ui_output):
+            msg = 'All data need to be inserted!'
+            return msg
+
         allowed_symbol_type = ['stocks', 'etf', 'benchmark']
         if symbol_type not in allowed_symbol_type:
-            print('Allowed types are: benchmark, etf or stocks!')
+            msg = 'Allowed types are: benchmark, etf or stocks!'
+            print(msg)
+            if ui_output:
+                return msg
             return
 
         res = symbols.get_symbols()
         existed_symbols = helper.get_symbol_list(res)
         if any(d['table'] == table_name for d in existed_symbols) and not symbol_type == 'benchmark':
-            print('Table already in use!')
+            msg = 'Table already in use!'
+            print(msg)
+            if ui_output:
+                return msg
             return
 
         result = helper.twelve_api(20, '2024-07-04', '2024-07-06', symbol)
 
         if 'code' in result['data'][0]:
-            print('Error in test!')
+            msg = 'Error in test!'
+            print(msg)
             err_code = result['data'][0]['code']
             print(f'Code: {err_code}')
             err_msg = result['data'][0]['message']
             print(f'Message: {err_msg}')
-            return
 
-        print('Symbol is valid!')
+            msg = msg + f'Message: {err_msg}'
+            if ui_output:
+                return msg
+
+        msg = 'Symbol is valid!'
+        print(msg)
 
         if symbol_type != 'benchmark':
             if symbol not in existed_symbols:
                 symbols.post_symbols(symbol_type, symbol, table_name)
                 print('Symbol added!')
+                if ui_output:
+                    return msg + ' Symbol added!'
             else:
                 print('Already existed!')
+                if ui_output:
+                    return msg + ' Already existed!'
+
         elif not res['benchmark'] or res['benchmark'][0] != symbol:
             symbols.post_symbols(symbol_type, symbol, table_name)
             print('Symbol added!')
+            if ui_output:
+                return msg + ' Symbol added!'
         else:
             print('Already existed!')
+            if ui_output:
+                return msg + ' Already existed!'
 
         # TODO: check if we don't have benchmark of we want to update benchmark
+
+
+class UIApp(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
+
+        self.ui.testSymbolPushButton.clicked.connect(self.test_symbol)
+        self.ui.updateDBpushButton.clicked.connect(self.update_database)
+
+    def test_symbol(self):
+        symbol_type = self.ui.testSymoblTypeInput.text()
+        symbol_name = self.ui.testSymbolSymbolInput.text()
+        table_name = self.ui.testSymbolTableNameInput.text()
+
+        print(f'{symbol_type} {symbol_name} {table_name}')
+
+        testSym = TestSymbol()
+        msg = testSym.test_symbol(symbol_name.upper(), symbol_type, table_name, True)
+        self.ui.resultOutputTestSymbol.setPlainText(msg)
+
+    def update_database(self):
+        print('Updating database')
+        self.ui.resultUpdate.setPlainText('Date base will be updated, please wait, it could take a while!')
+        QTimer.singleShot(100, self.perform_update)
+
+    def perform_update(self):
+        update_tables()
+        self.ui.resultUpdate.setPlainText('Date base updated, now you can use library!')
 
 
 def update_tables():
@@ -164,6 +221,7 @@ def update_tables():
 
 
 if __name__ == '__main__':
+    """
     first_time = True
     while True:
         if first_time:
@@ -235,5 +293,10 @@ if __name__ == '__main__':
                             break
             case '4':
                 sys.exit(0)
-
+    """
     # TODO: library for use of database
+
+    app = QApplication(sys.argv)
+    run_app = UIApp()
+    run_app.show()  # Show the main window
+    sys.exit(app.exec())
