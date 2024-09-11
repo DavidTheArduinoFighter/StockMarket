@@ -3,6 +3,7 @@ import mariadb
 import credentials
 from datetime import timedelta, date
 import sys
+import os
 
 class MonthDay:
     def __init__(self, month, day):
@@ -17,13 +18,17 @@ stock_holidays_fixed = [
 ]
 
 
+def is_docker():
+    return os.path.exists('/.dockerenv')
+
+
 # TODO: move functions that could be moved in new "library python file"
 def connect_to_db():
     try:
         conn = mariadb.connect(
             user=credentials.db_username(),
             password=credentials.db_password(),
-            host='mariadb',
+            host='mariadb' if is_docker() else 'localhost',
             port=3306,
             database=credentials.db_database(),
             autocommit=True
