@@ -6,7 +6,7 @@ import symbols
 import helper
 from PyQt6.QtWidgets import QApplication, QMainWindow
 from PyQt6.QtCore import QTimer
-from StockMarketUI import Ui_MainWindow
+import StockMarketUI
 
 
 class StockData:
@@ -27,14 +27,15 @@ class StockData:
         self.last_write_date = self.get_last_db_date()
 
         if self.last_write_date and self.last_write_date.date() == helper.get_last_working_day(self.start_date):
-            print(f'Data for table {table_name} (symbol: {symbol}) already up to date.')
-            return
+            msg = f'Data for table {table_name} (symbol: {symbol}) already up to date.'
+            print(msg)
+            return msg
 
         for i in range(years * 2):
             start_date, end_date = self.get_interval_data(183)
-            is_error = self.add_to_db_price_interval(end_date, start_date, symbol)
+            is_error, msg = self.add_to_db_price_interval(end_date, start_date, symbol)
             if is_error or self.last_date_reached:
-                return
+                return msg
             time.sleep(9)  # to not exceed max api calls per minute
 
         print(f'Size of hkey list is: {sys.getsizeof(self.hkey)}')
@@ -57,8 +58,9 @@ class StockData:
         if result['data'][0]['status'] == 'error':
             message = result['data'][0]['message']
             print(f'Error: {message}')
-            return True
+            return True, f'Error: {message}'
         self.write_table(result)
+        return False, ''
 
     def write_table(self, result):
         values = result['data'][0]['values']
@@ -182,7 +184,7 @@ class TestSymbol:
 class UIApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.ui = Ui_MainWindow()
+        self.ui = StockMarketUI.Ui_MainWindow()
         self.ui.setupUi(self)
 
         self.ui.testSymbolPushButton.clicked.connect(self.test_symbol)
@@ -206,7 +208,8 @@ class UIApp(QMainWindow):
 
     def perform_update(self):
         update_tables()
-        self.ui.resultUpdate.setPlainText('Date base updated, now you can use library!')
+        self.ui.resultUpdate.setPlainText('Date base will be updated, please wait, it could take a while!\n'
+                                          'Date base updated, now you can use library!')
 
 
 def update_tables():
@@ -221,6 +224,9 @@ def update_tables():
 
 
 if __name__ == '__main__':
+    # while True:
+    #     time.sleep(10)
+    #     print(time.time())
     """
     first_time = True
     while True:
@@ -293,7 +299,7 @@ if __name__ == '__main__':
                             break
             case '4':
                 sys.exit(0)
-    """
+"""
     # TODO: library for use of database
 
     app = QApplication(sys.argv)
