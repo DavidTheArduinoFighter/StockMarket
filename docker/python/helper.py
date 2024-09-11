@@ -23,7 +23,7 @@ def connect_to_db():
         conn = mariadb.connect(
             user=credentials.db_username(),
             password=credentials.db_password(),
-            host='localhost',
+            host='mariadb',
             port=3306,
             database=credentials.db_database(),
             autocommit=True

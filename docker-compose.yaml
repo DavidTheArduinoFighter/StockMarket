@@ -27,7 +27,14 @@ services:
     image: python
     build: docker/python
     container_name: python
-    stdin_open: true # enable input - not working
+    environment:
+      DISPLAY: host.docker.internal:0  # Use the host machine's display for VcXsrv
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix  # Share the X11 socket
+    ports:
+      - "7000:7000"
+    stdin_open: true
     tty: true
+       # Allocate a pseudo-TTY for interaction with the application
 volumes:
   data:
