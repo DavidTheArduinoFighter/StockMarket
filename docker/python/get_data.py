@@ -12,7 +12,8 @@ import StockMarketUI
 class StockData:
     def __init__(self):
         self.symbol = None
-        self.cur = helper.connect_to_db()
+        self.conn = helper.connect_to_db()
+        self.cur = self.conn.cursor()
         self.table_name = None
         self.hkey = []
         self.last_date_reached = False
@@ -39,6 +40,8 @@ class StockData:
             time.sleep(9)  # to not exceed max api calls per minute
 
         print(f'Size of hkey list is: {sys.getsizeof(self.hkey)}')
+
+        helper.disconnect_from_db(self.conn)
 
     def make_new_stock_table(self):
         self.cur.execute(
@@ -116,7 +119,8 @@ class StockData:
 
 class TestSymbol:
     def __init__(self):
-        self.cur = helper.connect_to_db()
+        pass
+        # TODO: delete self.cur = helper.connect_to_db().cursor()
 
     def test_symbol(self, symbol, symbol_type, table_name, ui_output=False):
         if not (symbol and symbol_type and table_name and ui_output):

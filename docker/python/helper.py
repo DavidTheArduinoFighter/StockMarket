@@ -38,9 +38,14 @@ def connect_to_db():
         sys.exit(1)
 
     # Get Cursor
-    cur = conn.cursor()
+    cur = conn
 
     return cur
+
+
+def disconnect_from_db(conn):
+    conn.cursor().close()
+    conn.close()
 
 
 def twelve_api(output_size, start_date, end_date, symbol='NDX', intervals='15min'):
