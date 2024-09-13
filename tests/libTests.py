@@ -1,5 +1,5 @@
 import unittest
-from lib.StockLib import get_table_name, query_db_for_symbol
+from lib.StockLib import get_table_name, data_for_symbol
 
 
 class TestStockLib(unittest.TestCase):
@@ -11,7 +11,7 @@ class TestStockLib(unittest.TestCase):
 
     def test_query_db_for_symbol(self):
         symbol = "AAPL"
-        result = query_db_for_symbol(symbol)
+        result = data_for_symbol(symbol)
         self.assertGreater(len(result), 0, "Query should return data for valid symbol.")
 
 
