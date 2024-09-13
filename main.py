@@ -1,8 +1,9 @@
 from lib import StockLib
 
 apple = StockLib.get_stock_data('AAPL')
+benchmark = StockLib.get_benchmark_data()
 
-for item in apple:
+for item in benchmark:
     print(item)
     print(item[0])
     print(item[1])
