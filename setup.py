@@ -6,7 +6,7 @@ setup(
     description='A library to manage stock data and fetch from DB',
     author='David Ogorevc',
     url='https://github.com/DavidTheArduinoFighter/StockMarket',
-    packages=find_packages(include=['lib', 'docker.python']),
+    packages=find_packages(include=['lib']),
     install_requires=[  # External dependencies
         'mariadb',
         'requests',
