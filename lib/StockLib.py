@@ -1,5 +1,5 @@
-from docker.python.helper import connect_to_db, disconnect_from_db
-from docker.python.symbols import get_symbols
+from docker.python.src.helper import connect_to_db, disconnect_from_db
+from docker.python.src.symbols import get_symbols
 
 
 # Dic to store stock symbols and their tables

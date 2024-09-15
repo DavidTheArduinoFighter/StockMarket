@@ -1,6 +1,6 @@
 import requests
 import mariadb
-import credentials
+from docker.python.src import credentials
 from datetime import timedelta, date
 import sys
 import os

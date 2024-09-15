@@ -2,8 +2,7 @@ import sys
 from datetime import timedelta, datetime, date
 import time
 import hashlib
-import symbols
-import helper
+from docker.python.src import helper, symbols
 from PyQt6.QtWidgets import QApplication, QMainWindow
 from PyQt6.QtCore import QTimer
 import StockMarketUI
