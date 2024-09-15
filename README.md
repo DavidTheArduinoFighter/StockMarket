@@ -71,6 +71,10 @@ Once the `.env` file is set up, Docker will automatically load these variables w
 
 #### 4. Build the Library
 - Open the terminal in PyCharm and run the following commands (paste and hit enter):
+
+    ```
+    pip install -r requirements.txt
+    ```
     ```
     python setup.py sdist bdist_wheel
     pip install .
@@ -92,11 +96,6 @@ Once the `.env` file is set up, Docker will automatically load these variables w
     ![image](https://github.com/user-attachments/assets/f836fb5c-aaab-4d64-a406-93754b4de665)
 
 #### 5. B) Set local Python (for running the UI on Local)
-
-In terminal run:
-```
-pip install -r requirements.txt
-```
 
 For local UI `docker/python/get_data.py` need to be run and also `mariadb` and `backend_api` container on Docker Desktop.
 
