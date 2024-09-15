@@ -2,7 +2,7 @@
 
 **Author**: David Ogorevc  
 **License**: Free to use, no warranties provided. Use at your own risk.  
-**GitHub**: [Your GitHub Account]
+**GitHub**: https://github.com/DavidTheArduinoFighter/StockMarket
 
 ---
 
@@ -40,19 +40,42 @@ The project has been successfully tested on **Windows 10** and **11**, but there
 - Create a new project in PyCharm and set up a virtual environment.
 - Copy the files from this repository into your new project.
 
+- To ensure Docker runs smoothly with the correct credentials, you need to configure a `.env` file that sets the necessary environment variables. You can either use the default values or, for better security, customize them. Just make sure that the values in the `.env` file match those in `docker/api/json/credentials/secretCredentials.json`.
+
 #### 2. Set Up TwelveData API
 - Go to the [TwelveData](https://twelvedata.com/) website and create an account.
 - Generate an API token.
-- Place the token in the `docker/api/json/credentials/twelveCredentials.json` file, replacing `<your_token>`. Also, set the database username, password, and database name (or leave the default settings, though changes are recommended).
+- Place the token in the `docker/api/json/credentials/secretCredentials.json` file, replacing `<your_token>`. Also, set the database username, password, and database name (or leave the default settings, though changes are recommended).
+  
+#### 3. Steps to Set Up `.env`:
+1. **Create a `.env` file** in the root of your project (if it doesn't exist already).
+2. **Define the following variables** in the `.env` file:
+    ```bash
+    MYSQL_ROOT_PASSWORD=<stock_data_pass>
+    MYSQL_DATABASE=<your_database_name>
+    MYSQL_USER=<your_database_username>
+    MYSQL_PASSWORD=<your_database_password>
+    ```
 
-#### 3. Build the Library
+    - Replace `<stock_data_pass>`, `<your_database_username>`, `<your_database_password>` and `<your_database_name>` with your actual values.
+    - **Recommendation**: Change default values for added security.
+  
+3. **Ensure these variables match** the values defined in `docker/api/json/credentials/secretCredentials.json`.
+
+>[!Important]
+> The values in both the `.env` file and the `secretCredentials.json` file must be identical, or Docker won't be able to properly authenticate and retrieve stock data.
+
+Once the `.env` file is set up, Docker will automatically load these variables when you run the containers.
+
+
+#### 4. Build the Library
 - Open the terminal in PyCharm and run the following commands (paste and hit enter):
     ```
     python setup.py sdist bdist_wheel
     pip install .
     ```
 
-#### 4. Set Up X Server (for running the UI in Docker)
+#### 5. Set Up X Server (for running the UI in Docker)
 - Install and run **X server (VcXsrv)**:
   - Start XLaunch: 
     - Display Settings -> Next
@@ -68,7 +91,7 @@ The project has been successfully tested on **Windows 10** and **11**, but there
     ![image](https://github.com/user-attachments/assets/f836fb5c-aaab-4d64-a406-93754b4de665)
 
 
-#### 5. Run Docker
+#### 6. Run Docker
 - Open Docker Desktop (ensure **WSL** is installed as well) ([WSL Installation](https://learn.microsoft.com/en-us/windows/wsl/install)).
 - In the terminal, run:
     ```
@@ -106,6 +129,16 @@ This data can be the foundation for building and testing your own trading strate
 Now you're ready to explore and develop your own trading strategies with real stock market data. Good luck! 🚀📊
 
 ---
+
+### 📝 Note:
+
+Currently, Docker containers are not limited in resource usage. If you notice your PC running slow when using the library (without running the UI), you can limit Docker's resources manually in your Docker settings.
+
+For optimal performance of the UI, it's recommended to run it locally rather than through Docker. To do this, first install the necessary dependencies by running:
+
+```
+pip install -r requirements.txt
+```
 
 ## ⚖️ License
 
