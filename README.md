@@ -150,7 +150,7 @@ Now you're ready to explore and develop your own trading strategies with real st
 
 Currently, Docker containers are not limited in resource usage. If you notice your PC running slow when using the library (without running the UI), you can limit Docker's resources manually in your Docker settings.
 
-For optimal performance of the UI, it's recommended to run it locally rather than through Docker. Also running throw X server (via container) UI on Windows 11, you can face some problems.
+For optimal performance of the UI, it's recommended to run it locally rather than through Docker. Also running via through X server (via container) UI on Windows 11, you can face some problems.
 
 ## ⚖️ License
 
