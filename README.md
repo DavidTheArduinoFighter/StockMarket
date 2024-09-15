@@ -20,7 +20,7 @@ The data is collected in **15-minute intervals** from the **Nasdaq stock exchang
 
 This project was created for friends and acquaintances who have basic Python knowledge but are not professional developers. Users can select stocks, ETFs, and a benchmark (e.g., S&P 500) through the UI, retrieve pre-stored stock data, and experiment with it.
 
-At the time of writing, I am a junior electrical engineer starting to explore this kind of programming. While I know the project could be improved, it's functional and provides the core capabilities I aimed for. Future updates will enhance usability and functionality.
+At the time of writing, I am a junior electrical engineer starting to explore this kind of programming. While I know the project could be improved, it's functional and provides the core capabilities I aimed for. Future updates will enhance usability and functionality. The project is designed to offer a flexible deployment option, allowing users to set up the UI locally or within a Docker container with minimal configuration.
 
 The project has been successfully tested on **Windows 10** and **11**, but there are issues with **Linux (Zorin OS)** due to an unsupported MariaDB library.
 
@@ -33,6 +33,7 @@ The project has been successfully tested on **Windows 10** and **11**, but there
 - [PyCharm Community Edition (Recommended)](https://www.jetbrains.com/pycharm/download/)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop)
 - [X server for Windows (VcXsrv)](https://sourceforge.net/projects/vcxsrv/)
+- [WSL Installation](https://learn.microsoft.com/en-us/windows/wsl/install)
 
 ### Setup Instructions:
 
@@ -63,7 +64,7 @@ The project has been successfully tested on **Windows 10** and **11**, but there
 3. **Ensure these variables match** the values defined in `docker/api/json/credentials/secretCredentials.json`.
 
 >[!Important]
-> The values in both the `.env` file and the `secretCredentials.json` file must be identical, or Docker won't be able to properly authenticate and retrieve stock data.
+> The values in both the `.env` file and the `docker/api/json/credentials/secretCredentials.json` file must be identical, or Docker won't be able to properly authenticate and retrieve stock data.
 
 Once the `.env` file is set up, Docker will automatically load these variables when you run the containers.
 
@@ -75,7 +76,7 @@ Once the `.env` file is set up, Docker will automatically load these variables w
     pip install .
     ```
 
-#### 5. Set Up X Server (for running the UI in Docker)
+#### 5. A) Set Up X Server (for running the UI in Docker)
 - Install and run **X server (VcXsrv)**:
   - Start XLaunch: 
     - Display Settings -> Next
@@ -90,9 +91,21 @@ Once the `.env` file is set up, Docker will automatically load these variables w
 
     ![image](https://github.com/user-attachments/assets/f836fb5c-aaab-4d64-a406-93754b4de665)
 
+#### 5. B) Set local Python (for running the UI on Local)
+
+In terminal run:
+```
+pip install -r requirements.txt
+```
+
+For local UI `docker/python/get_data.py` need to be run and also `mariadb` and `backend_api` container on Docker Desktop.
+
+![image](https://github.com/user-attachments/assets/2f5c5d09-fdbc-4850-8131-6c9cdcdca60a)
+
+
 
 #### 6. Run Docker
-- Open Docker Desktop (ensure **WSL** is installed as well) ([WSL Installation](https://learn.microsoft.com/en-us/windows/wsl/install)).
+- Open Docker Desktop (ensure **WSL** is installed as well).
 - In the terminal, run:
     ```
     docker compose up -d
@@ -103,18 +116,18 @@ Once the `.env` file is set up, Docker will automatically load these variables w
 
 ## 🚀 UI Launch
 
-Once the X server is running correctly, the UI window will open. You can start testing by entering a stock or ETF ticker and a benchmark (e.g., S&P 500).
+Once the X server is running correctly, the UI window will open. You can start testing by entering a stock or ETF ticker and a benchmark (e.g., Apple, Nasdaq100 or S&P 500).
 
 
 - Add as many stocks or ETFs as you like. The benchmark will be replaced if a new one is entered.
-- After selecting stocks, navigate to the second tab and click "Update Database." This process may take several minutes, depending on the number of stocks selected (limited by free API calls from TwelveData).
-- The UI may appear unresponsive during the update (normal due to the lack of multi-threading support).
+- After selecting stocks, navigate to the second tab and click "Update Database." This process may take several minutes or even more, depending on the number of stocks selected (limited by free API calls from TwelveData).
+- The UI will appear unresponsive during the update (normal due to the lack of multi-threading support).
 
 ![image](https://github.com/user-attachments/assets/f44aca68-f899-4724-b029-5d1436d12e36)
 
 ![image](https://github.com/user-attachments/assets/772e799b-9612-4cfc-a2e0-177d894835d3)
 
-Once the update is complete, the you will be notified, and you can close the program. To relaunch the program, go to Docker Desktop and click "play" on the container. 
+Once the update is complete, the you will be notified, and you can close the program. To relaunch the program, go to Docker Desktop and click "play" on the container. Or on local run again `docker/python/get_data.py`
 The other two connectors need to be active (green status) at all times for the Python library to operate properly.
 
 ![image](https://github.com/user-attachments/assets/20b111c5-ca0b-49aa-a89a-444e90276d47)
@@ -134,11 +147,7 @@ Now you're ready to explore and develop your own trading strategies with real st
 
 Currently, Docker containers are not limited in resource usage. If you notice your PC running slow when using the library (without running the UI), you can limit Docker's resources manually in your Docker settings.
 
-For optimal performance of the UI, it's recommended to run it locally rather than through Docker. To do this, first install the necessary dependencies by running:
-
-```
-pip install -r requirements.txt
-```
+For optimal performance of the UI, it's recommended to run it locally rather than through Docker.
 
 ## ⚖️ License
 
