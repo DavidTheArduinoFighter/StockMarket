@@ -7,7 +7,7 @@ const app = express();
 const port = 4000;
 
 
-const jsonFilePathTwelve = './json/credentials/twelveCredentials.json';
+const jsonFilePathTwelve = './json/credentials/secretCredentials.json';
 const jsonFilePathSymbols = './json/symbols/symbols.json';
 
 app.listen(port, () => {

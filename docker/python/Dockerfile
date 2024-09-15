@@ -1,10 +1,8 @@
-# Python image with necessary system dependencies
+# Use Python 3.11 as the base image
 FROM python:3.11
 
-# Set up the working directory
 WORKDIR /project
 
-# Install system dependencies for X11 and PyQt6
 RUN apt-get update && apt-get install -y \
     libx11-xcb1 \
     libxcb-render0 \
@@ -22,12 +20,12 @@ RUN apt-get update && apt-get install -y \
     libqt5gui5 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-# Copy the application code to the container
-COPY . ./project
+#COPY src /project/docker/python
+COPY . /project
 
-# Command to run the application
-CMD ["python", "./project/get_data.py"]
+ENV PYTHONPATH="/project"
+
+CMD ["python", "/project/get_data.py"]

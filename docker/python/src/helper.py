@@ -1,9 +1,19 @@
 import requests
 import mariadb
-from docker.python.src import credentials
 from datetime import timedelta, date
 import sys
 import os
+
+
+def is_docker():
+    return os.path.exists('/.dockerenv')
+
+
+if is_docker():
+    from . import credentials
+else:
+    from docker.python.src import credentials
+
 
 class MonthDay:
     def __init__(self, month, day):
@@ -18,8 +28,6 @@ stock_holidays_fixed = [
 ]
 
 
-def is_docker():
-    return os.path.exists('/.dockerenv')
 
 
 # TODO: move functions that could be moved in new "library python file"
