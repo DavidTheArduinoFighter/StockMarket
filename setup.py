@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='Stocklib',
+    name='StockLib',
     version='1.1.0',
     description='A library to manage stock data and fetch from DB',
     author='David Ogorevc',
