@@ -70,7 +70,7 @@ Once the `.env` file is set up, Docker will automatically load these variables w
 
 
 #### 4. Build the Library
-- Open the terminal in PyCharm and run the following commands (paste and hit enter):
+- Open the terminal in derictory of project (colud be also in PyCharm) and run the following commands (paste and hit enter):
 
     ```
     pip install -r requirements.txt
@@ -83,9 +83,9 @@ Once the `.env` file is set up, Docker will automatically load these variables w
 #### 5. A) Set Up X Server (for running the UI in Docker)
 - Install and run **X server (VcXsrv)**:
   - Start XLaunch: 
-    - Display Settings -> Next
-    - Client Startup -> Next
-    - Extra Settings -> Check all boxes -> Next
+    - Display Settings: Multiple windows -> Next
+    - Client Startup: Start no client -> Next
+    - Extra Settings: Check all boxes (Clipboard, Primary Selection, Native opengl, Disable access control) -> Next
    
       ![image](https://github.com/user-attachments/assets/175071f6-34ce-49f5-9977-b2a9d9f2f667)
 
@@ -97,19 +97,20 @@ Once the `.env` file is set up, Docker will automatically load these variables w
 
 #### 5. B) Set local Python (for running the UI on Local)
 
-For local UI `docker/python/get_data.py` need to be run and also `mariadb` and `backend_api` container on Docker Desktop.
+For local UI `docker/python/get_data.py` need to be run and also `mariadb` and `backend_api` container on Docker Desktop. (Lest's skip about containers for now.)
 
 ![image](https://github.com/user-attachments/assets/2f5c5d09-fdbc-4850-8131-6c9cdcdca60a)
 
 
 
 #### 6. Run Docker
-- Open Docker Desktop (ensure **WSL** is installed as well).
-- In the terminal, run:
+- Open Docker Desktop (ensure **WSL** is installed as well) and wait to Docker machine to run.
+- In the terminal of project, where compose.yaml file is, run:
     ```
     docker compose up -d
     ```
 - Ensure you're connected to the internet for Docker to download and build containers.
+- If you got error docker command not found it is problem of environment variablse: edit system variables for docker, restart Pycharm or even PC and try again. For more see: [Windows doesnt recognize docker command](https://stackoverflow.com/questions/49478343/windows-doesnt-recognize-docker-command) or [Noobie error starting Docker](https://forums.docker.com/t/noobie-error-starting-docker/74186/4).
 
 ---
 
@@ -138,6 +139,9 @@ The other two connectors need to be active (green status) at all times for the P
 Once everything is set up, you can run the `main.py` script to start using the library. It provides an example of how to retrieve stock data for a specified ticker. 
 This data can be the foundation for building and testing your own trading strategy.
 
+>[!Warning]
+>You need to have at least one stock or etf **and** benchmark in data base (inserted and updated via UI)!
+
 Now you're ready to explore and develop your own trading strategies with real stock market data. Good luck! 🚀📊
 
 ---
@@ -146,7 +150,7 @@ Now you're ready to explore and develop your own trading strategies with real st
 
 Currently, Docker containers are not limited in resource usage. If you notice your PC running slow when using the library (without running the UI), you can limit Docker's resources manually in your Docker settings.
 
-For optimal performance of the UI, it's recommended to run it locally rather than through Docker.
+For optimal performance of the UI, it's recommended to run it locally rather than through Docker. Also running throw X server (via container) UI on Windows 11, you can face some problems.
 
 ## ⚖️ License
 
